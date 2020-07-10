@@ -1,0 +1,27 @@
+name: Push Helm Chart
+
+on:
+  push:
+    paths:
+      - 'deploy/**'
+      - '.github/workflows/push-chart.yml'
+
+defaults:
+  run:
+    working-directory: deploy/cert-manager-webhook-gandi
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Get Helm
+      run: |
+        curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+    - name: Release helm chart
+      env:
+        CHART_MUSEUM_BASIC_AUTH: ${{ secrets.CHART_MUSEUM_BASIC_AUTH }}
+      run: |
+        helm dependency update
+        helm package .
+        curl --data-binary "@$(ls cert-manager-webhook-gandi-*.tgz)" http://$CHART_MUSEUM_BASIC_AUTH@charts.rekon.uk/api/charts

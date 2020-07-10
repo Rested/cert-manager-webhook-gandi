@@ -16,3 +16,4 @@
 
 # Ignore the built binary
 cert-manager-webhook-gandi
+.idea
